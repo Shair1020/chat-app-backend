@@ -22,3 +22,22 @@ exports.registerController = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.loginController = async (req, res, next) => {
+  try {
+    const { username, password } = req.body;
+    const user = await User.findOne({ username });
+    if (!user)
+      return res.json({
+        msg: "Incorrect username or password",
+        status: false,
+      });
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword)
+      return res.json({ msg: "Incorrect username or password", status: false });
+    delete user.password;
+    return res.json({ msg: "login successfully", status: true, user });
+  } catch (error) {
+    next(error);
+  }
+};
